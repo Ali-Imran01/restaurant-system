@@ -9,7 +9,7 @@ class Restaurant extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'logo', 'address', 'theme_settings'];
+    protected $fillable = ['name', 'slug', 'logo', 'address', 'external_website_url', 'theme_settings', 'show_public_profile'];
 
     protected $casts = [
         'theme_settings' => 'json',
@@ -38,5 +38,10 @@ class Restaurant extends Model
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
     }
 }

@@ -20,11 +20,20 @@ class RestaurantController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:restaurants,slug,' . $restaurant->id,
+            'external_website_url' => 'nullable|url',
             'address' => 'nullable|string|max:500',
-            'logo' => 'nullable|url', // Using URL for now as per previous design decisions
+            'logo' => 'nullable|url',
         ]);
 
-        $restaurant->update($request->only('name', 'address', 'logo'));
+        $restaurant->update([
+            'name' => $request->name,
+            'slug' => $request->slug,
+            'external_website_url' => $request->external_website_url,
+            'address' => $request->address,
+            'logo' => $request->logo,
+            'show_public_profile' => $request->has('show_public_profile'),
+        ]);
 
         return back()->with('success', 'Restaurant settings updated successfully.');
     }
