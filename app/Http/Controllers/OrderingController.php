@@ -30,6 +30,8 @@ class OrderingController extends Controller
     public function checkout(Request $request)
     {
         $tableId = session('table_id');
+        $restaurantId = session('restaurant_id');
+
         if (!$tableId) {
             return redirect()->back()->withErrors(['error' => 'Table session expired. Please scan QR again.']);
         }
@@ -41,10 +43,11 @@ class OrderingController extends Controller
 
         $totalAmount = 0;
         foreach ($cart as $item) {
-            $totalAmount += $item['price'] * $item['quantity'];
+            $totalAmount += $item['price'] * (isset($item['quantity']) ? $item['quantity'] : 1);
         }
 
         $order = \App\Models\Order::create([
+            'restaurant_id' => $restaurantId,
             'table_id' => $tableId,
             'status' => 'waiting_payment',
             'total_amount' => $totalAmount,
@@ -53,6 +56,7 @@ class OrderingController extends Controller
 
         foreach ($cart as $itemId => $details) {
             \App\Models\OrderItem::create([
+                'restaurant_id' => $restaurantId,
                 'order_id' => $order->id,
                 'menu_item_id' => $itemId,
                 'quantity' => $details['quantity'],

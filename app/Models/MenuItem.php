@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToTenant;
+
 class MenuItem extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
-    protected $fillable = ['category_id', 'name', 'description', 'price', 'is_available', 'image_url'];
+    protected $fillable = ['restaurant_id', 'category_id', 'name', 'description', 'price', 'is_available', 'image_url'];
 
     public function category()
     {

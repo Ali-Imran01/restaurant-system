@@ -70,6 +70,20 @@ class TableController extends Controller
         return redirect()->route('tables.index')->with('success', 'New QR token generated.');
     }
 
+    public function downloadQR(Table $table)
+    {
+        $this->authorizeOwner($table);
+        
+        $url = route('order.show', ['token' => $table->qr_token]);
+        $qrUrl = "https://quickchart.io/qr?text=" . urlencode($url) . "&size=1000&format=jpg";
+        
+        $filename = "Table_" . $table->table_number . "_QR.jpg";
+        
+        return response()->streamDownload(function () use ($qrUrl) {
+            echo file_get_contents($qrUrl);
+        }, $filename);
+    }
+
     private function authorizeOwner(Table $table)
     {
         if ($table->restaurant_id !== Auth::user()->restaurant_id) {

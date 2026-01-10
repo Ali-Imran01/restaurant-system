@@ -47,7 +47,11 @@
         <span>{{ $order->table->restaurant->address }}</span><br>
         <span>Table: {{ $order->table->table_number }}</span><br>
         <span>Date: {{ $order->created_at->format('d/m/Y H:i') }}</span><br>
+        <span>Cashier: {{ auth()->user()->name }}</span><br>
         <span>Order #{{ $order->id }}</span>
+        @if($order->status === 'cancelled')
+            <br><span class="bold" style="font-size: 18px; color: #000; display: block; margin-top: 2mm; border: 2px solid #000; padding: 2mm; letter-spacing: 2px;">*** CANCELLED ***</span>
+        @endif
     </div>
 
     <div class="divider"></div>

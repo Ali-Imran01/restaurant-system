@@ -10,7 +10,7 @@
         <main class="flex-1 relative overflow-y-auto focus:outline-none py-6">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
                 <div class="flex justify-between items-center">
-                    <h1 class="text-2xl font-bold text-slate-900">Categories</h1>
+                    <h1 class="text-2xl font-bold text-slate-900">Menu Categories</h1>
                     <a href="{{ route('categories.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200">
                         Add Category
                     </a>

@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\BelongsToTenant;
+
 class Order extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToTenant;
 
-    protected $fillable = ['table_id', 'status', 'total_amount', 'payment_method'];
+    protected $fillable = ['restaurant_id', 'table_id', 'status', 'total_amount', 'payment_method'];
 
     public function table()
     {

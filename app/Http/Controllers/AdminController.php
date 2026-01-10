@@ -34,11 +34,41 @@ class AdminController extends Controller
                 $query->where('restaurant_id', $restaurantId);
             })->count();
 
+        // Data for Sales Chart (Last 7 Days)
+        $salesData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $revenue = Order::whereHas('table', function($query) use ($restaurantId) {
+                    $query->where('restaurant_id', $restaurantId);
+                })
+                ->whereDate('created_at', $date)
+                ->whereIn('status', ['paid', 'preparing', 'completed'])
+                ->sum('total_amount');
+            
+            $salesData[] = [
+                'date' => $date->format('M d'),
+                'revenue' => (float)$revenue
+            ];
+        }
+
+        // Top Selling Items
+        $topItems = \App\Models\OrderItem::whereHas('order.table', function($query) use ($restaurantId) {
+                $query->where('restaurant_id', $restaurantId);
+            })
+            ->select('menu_item_id', \DB::raw('SUM(quantity) as total_quantity'))
+            ->groupBy('menu_item_id')
+            ->orderByDesc('total_quantity')
+            ->with('menuItem')
+            ->take(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalOrdersToday', 
             'totalRevenueToday', 
             'activeTablesCount', 
-            'menuItemsCount'
+            'menuItemsCount',
+            'salesData',
+            'topItems'
         ));
     }
 }

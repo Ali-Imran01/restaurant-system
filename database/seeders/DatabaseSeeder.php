@@ -14,71 +14,82 @@ class DatabaseSeeder extends Seeder
     {
         // Disable foreign key checks for truncation
         \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \App\Models\User::truncate();
+        \App\Models\Restaurant::truncate();
         \App\Models\OrderItem::truncate();
         \App\Models\Order::truncate();
         \App\Models\MenuItem::truncate();
         \App\Models\Category::truncate();
         \App\Models\Table::truncate();
         \Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-        $restaurant = \App\Models\Restaurant::updateOrCreate(
-            ['name' => 'The Grand Bistro'],
-            [
-                'address' => '123 Food Street, Tasty City',
-            ]
-        );
 
-        $admin = \App\Models\User::updateOrCreate(
-            ['email' => 'admin@restoqr.com'],
+        // 1. Create the SUPER ADMIN
+        \App\Models\User::create([
+            'name' => 'Platform Owner',
+            'email' => 'super_admin@restoqr.com',
+            'password' => bcrypt('password'),
+            'role' => 'super_admin',
+            'restaurant_id' => null, // Super admins don't belong to one restaurant
+        ]);
+
+        // 2. Create example restaurants
+        $restaurants = [
             [
-                'name' => 'Admin User',
+                'name' => 'The Grand Bistro',
+                'address' => '123 Gourmet St, Food City',
+                'owner_email' => 'bistro@owner.com',
+                'items' => ['Truffle Pasta', 'Grilled Salmon', 'Ribeye Steak'],
+                'cat' => 'Fine Dining'
+            ],
+            [
+                'name' => 'Burger Barn',
+                'address' => '45 Main Road, Hunger Town',
+                'owner_email' => 'burger@owner.com',
+                'items' => ['Monster Burger', 'Cheese Fries', 'Onion Rings'],
+                'cat' => 'Fast Food'
+            ]
+        ];
+
+        foreach ($restaurants as $resData) {
+            $restaurant = \App\Models\Restaurant::create([
+                'name' => $resData['name'],
+                'address' => $resData['address'],
+            ]);
+
+            // Create Owner for each restaurant
+            \App\Models\User::create([
+                'name' => $resData['name'] . ' Manager',
+                'email' => $resData['owner_email'],
                 'password' => bcrypt('password'),
                 'role' => 'admin',
                 'restaurant_id' => $restaurant->id,
-            ]
-        );
-
-        // Create 10 Tables
-        for ($i = 1; $i <= 10; $i++) {
-            \App\Models\Table::create([
-                'table_number' => (string)$i, 
-                'restaurant_id' => $restaurant->id,
-                'qr_token' => \Illuminate\Support\Str::random(32)
             ]);
-        }
 
-        $categories = [
-            'Food' => 10,
-            'Drinks' => 15,
-            'Sides' => 10,
-            'Dessert' => 7,
-            'Add-ons' => 5,
-        ];
+            // Create Tables for each
+            for ($i = 1; $i <= 5; $i++) {
+                \App\Models\Table::create([
+                    'table_number' => (string)$i,
+                    'restaurant_id' => $restaurant->id,
+                    'qr_token' => \Illuminate\Support\Str::random(32)
+                ]);
+            }
 
-        $mockItems = [
-            'Food' => ['Nasi Lemak Special', 'Chicken Chop', 'Beef Burger', 'Spaghetti Bolognese', 'Fish and Chips', 'Char Kway Teow', 'Laksa Nyonya', 'Grilled Salmon', 'Lamb Chop', 'Mee Goreng Mamak'],
-            'Drinks' => ['Teh Tarik', 'Kopi O', 'Iced Lemon Tea', 'Mango Smoothie', 'Watermelon Juice', 'Carrot Milk', 'Fresh Orange', 'Hot Chocolate', 'Latte', 'Cappuccino', 'Matcha Latte', 'Pink Lemonade', 'Soda Gembira', 'Coke', 'Sprite'],
-            'Sides' => ['French Fries', 'Garlic Bread', 'Onion Rings', 'Coleslaw', 'Mashed Potato', 'Chicken Wings', 'Nuggets', 'Potato Wedges', 'Cheese Fries', 'Truffle Fries'],
-            'Dessert' => ['Chocolate Lava Cake', 'New York Cheesecake', 'Tiramisu', 'Creme Brulee', 'Ice Cream Sundae', 'Brownie with Ice Cream', 'Fruit Platter'],
-            'Add-ons' => ['Extra Cheese', 'Fried Egg', 'Extra Sauce', 'Steam Rice', 'Chicken Slice'],
-        ];
-
-        $catIndex = 0;
-        foreach ($categories as $catName => $count) {
+            // Create Categories & Items for each
             $category = \App\Models\Category::create([
                 'restaurant_id' => $restaurant->id,
-                'name' => $catName,
-                'sort_order' => $catIndex++
+                'name' => $resData['cat'],
+                'sort_order' => 0
             ]);
 
-            for ($i = 0; $i < $count; $i++) {
-                $itemName = $mockItems[$catName][$i] ?? ($catName . ' Item ' . ($i + 1));
+            foreach ($resData['items'] as $itemName) {
                 \App\Models\MenuItem::create([
-                    'category_id' => $category->id, 
+                    'restaurant_id' => $restaurant->id, // Critical for denormalization
+                    'category_id' => $category->id,
                     'name' => $itemName,
-                    'description' => 'Delicious ' . $itemName . ' prepared with fresh ingredients.',
-                    'price' => rand(5, 50) + (rand(0, 9) / 10),
+                    'description' => 'A famous dish from ' . $resData['name'],
+                    'price' => rand(15, 45),
                     'is_available' => true,
-                    'image_url' => 'https://images.unsplash.com/photo-'.(1510000000000 + rand(1000000, 9000000)).'?auto=format&fit=crop&w=400&h=400&q=80'
+                    'image_url' => 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&h=400&q=80'
                 ]);
             }
         }

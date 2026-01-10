@@ -26,10 +26,16 @@ class StaffDashboardController extends Controller
                 $query->where('restaurant_id', Auth::user()->restaurant_id);
             })
             ->with(['table', 'items.menuItem'])
-            ->orderBy('created_at', 'desc')
+            ->whereIn('status', ['waiting_payment', 'paid', 'preparing'])
+            ->orderBy('created_at', 'asc')
             ->get();
 
-        return view('staff.orders.index', compact('orders'));
+        $groupedOrders = $orders->groupBy('table_id');
+        $lastOrderId = Order::whereHas('table', function ($query) {
+                $query->where('restaurant_id', Auth::user()->restaurant_id);
+            })->max('id') ?: 0;
+
+        return view('staff.orders.index', compact('groupedOrders', 'lastOrderId'));
     }
 
     public function menu()
@@ -55,7 +61,46 @@ class StaffDashboardController extends Controller
 
         $order->update(['status' => $request->status]);
 
-        return back()->with('success', 'Order status updated.');
+        // If marked as paid, we can let the frontend handle the 5s transition 
+        // OR we just return success and the frontend will trigger the 'preparing' update later.
+        
+        return response()->json(['success' => true, 'status' => $order->status]);
+    }
+
+    public function toggleItemReceived(\App\Models\OrderItem $item)
+    {
+        if ($item->order->table->restaurant_id !== Auth::user()->restaurant_id) {
+            abort(403);
+        }
+
+        $item->update(['is_received' => !$item->is_received]);
+
+        // Check if all items are received
+        $order = $item->order;
+        $totalItems = $order->items()->count();
+        $receivedItems = $order->items()->where('is_received', true)->count();
+
+        if ($totalItems > 0 && $totalItems === $receivedItems) {
+            $order->update(['status' => 'completed']);
+        }
+
+        return response()->json([
+            'success' => true, 
+            'is_received' => $item->is_received,
+            'order_status' => $order->status
+        ]);
+    }
+
+    public function receiveAllItems(Order $order)
+    {
+        if ($order->table->restaurant_id !== Auth::user()->restaurant_id) {
+            abort(403);
+        }
+
+        $order->items()->update(['is_received' => true]);
+        $order->update(['status' => 'completed']);
+
+        return response()->json(['success' => true, 'order_status' => 'completed']);
     }
 
     public function editOrder(Order $order)
@@ -140,5 +185,15 @@ class StaffDashboardController extends Controller
             ->paginate(15);
 
         return view('staff.history.index', compact('orders'));
+    }
+
+    public function checkNewOrders()
+    {
+        $lastOrderId = Order::whereHas('table', function ($query) {
+                $query->where('restaurant_id', Auth::user()->restaurant_id);
+            })
+            ->max('id');
+
+        return response()->json(['last_order_id' => $lastOrderId ?: 0]);
     }
 }
