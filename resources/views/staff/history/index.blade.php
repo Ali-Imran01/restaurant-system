@@ -2,27 +2,41 @@
 
 @section('content')
 <div class="flex h-screen bg-slate-50 overflow-hidden font-sans">
+    {{-- Sidebar --}}
     @include('staff.partials.sidebar')
 
-    <div class="flex-1 flex flex-col overflow-hidden">
+
+    <div class="flex-1 flex flex-col overflow-hidden min-h-0">
         {{-- Header --}}
-        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-            <div>
-                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Order History</h1>
-                <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mt-1">Reviewing Past Service Records</p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <span class="px-4 py-2 bg-slate-100 rounded-2xl text-slate-500 text-xs font-black uppercase tracking-wider">
-                    {{ $orders->total() }} Total Records
-                </span>
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 md:px-8 shrink-0">
+            <div class="flex items-center space-x-4">
+                {{-- Toggle Sidebar Button (Desktop) --}}
+                <button @click="toggleSidebar()" class="hidden md:flex w-10 h-10 bg-slate-50 rounded-xl items-center justify-center text-slate-400 hover:bg-primary-500 hover:text-white transition-all shadow-sm">
+                    <svg class="w-6 h-6 sidebar-transition" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                {{-- Hamburger Button (Mobile) --}}
+                <button @click="mobileSidebarOpen = true" class="md:hidden w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 text-white">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Order History</h1>
+                    <p class="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-0.5">Service Records</p>
+                </div>
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-8 bg-slate-50/50">
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50/50 pb-8">
             <div class="max-w-7xl mx-auto">
                 {{-- History Table --}}
                 <div class="bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden">
-                    <table class="min-w-full divide-y divide-slate-100">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-100">
                         <thead class="bg-slate-50">
                             <tr>
                                 <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Order Ref</th>
@@ -91,6 +105,7 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
 
                 <div class="mt-8">
                     {{ $orders->links() }}

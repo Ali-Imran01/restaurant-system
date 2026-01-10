@@ -1,22 +1,42 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex h-screen bg-slate-950">
+<div class="flex h-screen bg-slate-950 overflow-hidden font-sans">
     @include('staff.partials.sidebar')
 
-    <div class="flex flex-col w-0 flex-1 overflow-hidden">
-        <main class="flex-1 relative overflow-y-auto focus:outline-none py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center">
-                        <a href="{{ route('staff.orders') }}" class="mr-4 text-slate-400 hover:text-white transition-colors">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                        </a>
-                        <h1 class="text-2xl font-bold text-white">Edit Order #{{ $order->id }} - Table {{ $order->table->table_number }}</h1>
-                    </div>
+
+    <div class="flex-1 flex flex-col overflow-hidden min-h-0">
+        {{-- Header --}}
+        <header class="h-20 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 md:px-8 shrink-0">
+            <div class="flex items-center space-x-4">
+                {{-- Toggle Sidebar Button (Desktop) --}}
+                <button @click="toggleSidebar()" class="hidden md:flex w-10 h-10 bg-slate-800 rounded-xl items-center justify-center text-slate-400 hover:bg-primary-500 hover:text-white transition-all shadow-sm">
+                    <svg class="w-6 h-6 sidebar-transition" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                {{-- Hamburger Button (Mobile) --}}
+                <button @click="mobileSidebarOpen = true" class="md:hidden w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 text-white">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+
+                <a href="{{ route('staff.orders') }}" class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:bg-primary-500 hover:text-white transition-all shadow-sm">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black text-white tracking-tight">Edit Order #{{ $order->id }}</h1>
+                    <p class="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-0.5">Table {{ $order->table->table_number }}</p>
                 </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-950 pb-8">
+            <div class="max-w-7xl mx-auto">
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Current Items -->

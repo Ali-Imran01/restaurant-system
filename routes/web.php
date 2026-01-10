@@ -12,6 +12,8 @@ use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\SuperAdminController;
 
 use App\Http\Controllers\OrderingController;
+use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\PublicProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,7 +59,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/staff/menu', [StaffDashboardController::class, 'menu'])->name('staff.menu');
     Route::post('/staff/menu/{menuItem}/toggle', [StaffDashboardController::class, 'toggleMenuAvailability'])->name('staff.menu.toggle');
     Route::get('/staff/history', [StaffDashboardController::class, 'history'])->name('staff.history');
+
+    // Administration Reservations
+    Route::resource('admin/reservations', ReservationController::class)->names('admin.reservations');
+    Route::post('admin/reservations/{reservation}/status', [ReservationController::class, 'updateStatus'])->name('admin.reservations.status');
 });
+
+// Public Brand Hub & Reservations
+Route::get('/v/{slug}', [PublicProfileController::class, 'show'])->name('public.profile');
+Route::get('/v/{slug}/book', [PublicProfileController::class, 'showBookingForm'])->name('public.reservation');
+Route::post('/v/{slug}/book', [PublicProfileController::class, 'storeReservation'])->name('public.reservation.store');
 
 // Super Admin Routes
 Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->group(function () {
@@ -74,3 +85,4 @@ Route::middleware(['auth', 'super_admin'])->prefix('super-admin')->group(functio
     Route::post('/users', [SuperAdminController::class, 'storeUser'])->name('super_admin.users.store');
     Route::delete('/users/{user}', [SuperAdminController::class, 'destroyUser'])->name('super_admin.users.destroy');
 });
+

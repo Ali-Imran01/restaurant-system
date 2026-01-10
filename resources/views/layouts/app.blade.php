@@ -40,10 +40,31 @@
         }
     </script>
 
+    <style>
+        [x-cloak] { display: none !important; }
+        .sidebar-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-collapsed { width: 5rem !important; }
+        .sidebar-expanded { width: 18rem !important; }
+        @media (max-width: 768px) {
+            .mobile-sidebar-open { transform: translateX(0) !important; }
+            .mobile-sidebar-closed { transform: translateX(-100%) !important; }
+        }
+    </style>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full font-sans text-slate-900 antialiased">
+<body class="h-full font-sans text-slate-900 antialiased" x-data="{ 
+    sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
+    mobileSidebarOpen: false,
+    toggleSidebar() {
+        this.sidebarCollapsed = !this.sidebarCollapsed;
+        localStorage.setItem('sidebarCollapsed', this.sidebarCollapsed);
+    }
+}">
     @yield('content')
     @stack('scripts')
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </body>
 </html>

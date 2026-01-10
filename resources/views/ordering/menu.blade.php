@@ -77,6 +77,21 @@
         .animate-fade-in {
             animation: fadeIn 0.5s ease forwards;
         }
+        .skeleton {
+            background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .flying-item {
+            position: fixed;
+            pointer-events: none;
+            z-index: 100;
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
     </style>
 </head>
 <body class="font-sans text-slate-900 antialiased selection:bg-primary-100">
@@ -85,27 +100,31 @@
     <header class="sticky top-0 z-40 glass border-b border-white/20">
         <div class="px-4 h-16 flex items-center justify-between">
             <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-primary-500 uppercase tracking-[0.2em]">{{ $restaurant->name }}</span>
+                <span class="text-[9px] font-black text-primary-500 uppercase tracking-[0.2em]">{{ $restaurant->name }}</span>
                 <div class="flex items-center space-x-2">
                     <span class="text-xl font-black text-slate-900">Table {{ $table->table_number }}</span>
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <button class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100/50 text-slate-600 hover:bg-primary-50 hover:text-primary-600 transition-all duration-300">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <a href="{{ route('public.reservation', $restaurant->slug ?? $restaurant->id) }}" class="flex items-center space-x-2 bg-primary-50 px-4 py-2 rounded-2xl border border-primary-100 text-primary-600 active:scale-95 transition-all">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor font-black"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <span class="text-[10px] font-black uppercase tracking-widest hidden sm:block">Reservations</span>
+                </a>
+                <div class="bg-white/50 backdrop-blur-sm p-2 rounded-2xl border border-white shadow-sm">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                </button>
+                </div>
             </div>
         </div>
 
-        <div class="px-4 py-3 flex space-x-2 overflow-x-auto no-scrollbar" id="category-tabs">
+        <div class="px-4 py-3 flex space-x-2 overflow-x-auto no-scrollbar scroll-smooth" id="category-tabs">
             @foreach($categories as $category)
                 <a href="#category-{{ $category->id }}" 
                    id="tab-category-{{ $category->id }}"
                    data-category="{{ $category->id }}"
-                   class="category-tab flex-shrink-0 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-300 bg-white shadow-sm border border-slate-100 text-slate-500 hover:text-primary-600">
+                   class="category-tab flex-shrink-0 px-5 py-2.5 rounded-2xl text-[13px] font-black uppercase tracking-wider transition-all duration-300 bg-white shadow-sm border border-slate-100 text-slate-500 hover:text-primary-600 active:scale-95">
                     {{ $category->name }}
                 </a>
             @endforeach
@@ -116,16 +135,27 @@
     <main class="pb-32">
         <div class="max-w-screen-md mx-auto">
             <!-- Hero Section -->
-            <div class="px-4 pt-8 pb-4">
-                <div class="relative overflow-hidden rounded-[32px] bg-slate-900 aspect-[16/9] sm:aspect-[21/9] p-8 flex flex-col justify-end">
+            <div class="px-4 pt-6 md:pt-8 pb-4">
+                <div class="relative overflow-hidden rounded-[40px] bg-slate-900 aspect-[16/10] sm:aspect-[21/9] p-8 flex flex-col justify-end group shadow-2xl shadow-slate-200">
                     <div class="absolute inset-0">
-                        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80" 
-                             class="w-full h-full object-cover opacity-60" alt="Hero">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80" 
+                             class="w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-[2s]" alt="Hero">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
                     </div>
-                    <div class="relative z-10 animate-fade-in">
-                        <h1 class="text-3xl font-black text-white mb-2 leading-tight">Authentic Flavors,<br>Right to Your Table.</h1>
-                        <p class="text-slate-300 text-sm font-medium">Browse our curated selection of dishes.</p>
+                    <div class="relative z-10 animate-fade-in translate-y-2 group-hover:translate-y-0 transition-transform duration-700">
+                        <div class="inline-flex items-center px-3 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-4">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2 animate-pulse"></span>
+                            <span class="text-[9px] font-black text-white uppercase tracking-widest">Kitchen is Open</span>
+                        </div>
+                        <h1 class="text-3xl md:text-4xl font-black text-white mb-2 leading-tight tracking-tighter">Gourmet Experience,<br>Served Fresh.</h1>
+                        <p class="text-slate-300 text-[13px] font-medium opacity-80">Discover meticulously prepared dishes for your table.</p>
+                        
+                        <div class="mt-6">
+                            <a href="{{ route('public.reservation', $restaurant->slug ?? $restaurant->id) }}" class="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all duration-300 group">
+                                <span>Reserve for Next Time</span>
+                                <svg class="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor font-black"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -140,9 +170,11 @@
                     <div class="grid grid-cols-1 gap-5">
                         @foreach($category->menuItems as $item)
                             <div class="menu-card bg-white rounded-[24px] p-3 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-50 flex gap-4 relative overflow-hidden {{ !$item->is_available ? 'opacity-75' : '' }}">
-                                <div class="w-28 h-28 sm:w-36 sm:h-36 bg-slate-100 rounded-[20px] overflow-hidden flex-shrink-0 relative">
+                                <div class="w-28 h-28 sm:w-36 sm:h-36 bg-slate-100 rounded-[20px] overflow-hidden flex-shrink-0 relative skeleton" id="skeleton-{{ $item->id }}">
                                     @if($item->image_url)
-                                        <img src="{{ $item->image_url }}" class="w-full h-full object-cover" alt="{{ $item->name }}">
+                                        <img src="{{ $item->image_url }}" 
+                                             onload="document.getElementById('skeleton-{{ $item->id }}').classList.remove('skeleton')"
+                                             class="w-full h-full object-cover" alt="{{ $item->name }}">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-slate-300">
                                             <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,8 +201,8 @@
                                         <span class="text-[#FF7E5F] font-black text-lg">RM {{ number_format($item->price, 2) }}</span>
                                         
                                         @if($item->is_available)
-                                            <button onclick="addToCart({{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->price }})" 
-                                                    class="w-10 h-10 flex items-center justify-center bg-slate-900 text-white rounded-2xl shadow-lg active:scale-95 transition-all duration-300 hover:bg-primary-600">
+                                            <button onclick="addToCart(event, {{ $item->id }}, '{{ addslashes($item->name) }}', {{ $item->price }})" 
+                                                    class="add-to-cart-btn w-10 h-10 flex items-center justify-center bg-slate-900 text-white rounded-2xl shadow-lg active:scale-95 transition-all duration-300 hover:bg-primary-600">
                                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                                                 </svg>
@@ -306,7 +338,7 @@
     <script>
         let cart = {};
 
-        function addToCart(id, name, price) {
+        function addToCart(event, id, name, price) {
             if (cart[id]) {
                 cart[id].quantity += 1;
             } else {
@@ -315,11 +347,43 @@
             updateCartUI();
             showCartBar();
             
+            if (event) {
+                flyToCart(event.currentTarget);
+            }
+
             // Animation for item added
             const badge = document.getElementById('cart-count-badge');
             badge.classList.remove('hidden', 'animate-bounce');
             void badge.offsetWidth; // Trigger reflow
             badge.classList.add('animate-bounce');
+        }
+
+        function flyToCart(button) {
+            const cartBar = document.getElementById('cart-bar');
+            const flyingItem = document.createElement('div');
+            
+            flyingItem.classList.add('flying-item', 'w-8', 'h-8', 'bg-primary-500', 'rounded-full', 'shadow-lg', 'flex', 'items-center', 'justify-center', 'text-white');
+            flyingItem.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" /></svg>';
+            
+            const btnRect = button.getBoundingClientRect();
+            const cartRect = cartBar.getBoundingClientRect();
+            
+            flyingItem.style.left = `${btnRect.left}px`;
+            flyingItem.style.top = `${btnRect.top}px`;
+            
+            document.body.appendChild(flyingItem);
+            
+            // Force reflow
+            void flyingItem.offsetWidth;
+            
+            flyingItem.style.left = `${cartRect.left + cartRect.width / 2}px`;
+            flyingItem.style.top = `${cartRect.top}px`;
+            flyingItem.style.transform = 'scale(0.1)';
+            flyingItem.style.opacity = '0';
+            
+            setTimeout(() => {
+                flyingItem.remove();
+            }, 800);
         }
 
         function updateItemNote(id, note) {

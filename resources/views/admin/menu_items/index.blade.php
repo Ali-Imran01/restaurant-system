@@ -1,22 +1,48 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex h-screen bg-slate-50">
+<div class="flex h-screen bg-slate-50 overflow-hidden font-sans">
     @include('admin.partials.sidebar')
 
-    <div class="flex flex-col w-0 flex-1 overflow-hidden">
-        <main class="flex-1 relative overflow-y-auto focus:outline-none py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-                <div class="flex justify-between items-center">
-                    <h1 class="text-2xl font-bold text-slate-900">Menu Items</h1>
-                    <a href="{{ route('menu_items.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200">
-                        Add Menu Item
-                    </a>
-                </div>
 
+    <div class="flex-1 flex flex-col overflow-hidden">
+        {{-- Header --}}
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 md:px-8 shrink-0">
+            <div class="flex items-center space-x-4">
+                {{-- Toggle Sidebar Button (Desktop) --}}
+                <button @click="toggleSidebar()" class="hidden md:flex w-10 h-10 bg-slate-50 rounded-xl items-center justify-center text-slate-400 hover:bg-primary-500 hover:text-white transition-all shadow-sm">
+                    <svg class="w-6 h-6 sidebar-transition" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                {{-- Hamburger Button (Mobile) --}}
+                <button @click="mobileSidebarOpen = true" class="md:hidden w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 text-white">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Menu Vault</h1>
+                    <p class="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-0.5">Kitchen Inventory</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <a href="{{ route('menu_items.create') }}" class="bg-primary-500 text-white p-2.5 md:px-6 md:py-3 rounded-2xl font-black text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20 transition-all flex items-center">
+                    <svg class="w-5 h-5 md:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span class="hidden md:inline">Add Item</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50/50 pb-8">
+            <div class="max-w-7xl mx-auto">
                 @if(session('success'))
-                    <div class="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl relative" role="alert">
-                        <span class="block sm:inline">{{ session('success') }}</span>
+                    <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl relative" role="alert">
+                        <span class="block sm:inline font-bold">{{ session('success') }}</span>
                     </div>
                 @endif
 

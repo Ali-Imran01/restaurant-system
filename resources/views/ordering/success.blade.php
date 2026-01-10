@@ -32,43 +32,63 @@
 </head>
 <body class="h-full font-sans text-slate-900 antialiased flex flex-col items-center justify-center p-6">
 
-    <div class="max-w-md w-full bg-white rounded-[32px] shadow-2xl shadow-slate-200 overflow-hidden text-center p-8">
-        <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+    <div class="max-w-md w-full bg-white rounded-[40px] shadow-[0_20px_60px_rgb(0,0,0,0.08)] overflow-hidden text-center p-8 border border-slate-100 flex flex-col relative">
+        {{-- Decorative Circles --}}
+        <div class="absolute top-1/2 -left-3 w-6 h-6 bg-slate-50 rounded-full"></div>
+        <div class="absolute top-1/2 -right-3 w-6 h-6 bg-slate-50 rounded-full"></div>
+
+        <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
             <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
             </svg>
         </div>
 
-        <h1 class="text-3xl font-bold text-slate-900 mb-2">Order Confirmed!</h1>
-        <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 mb-6">
-            <p class="text-amber-800 font-bold text-lg mb-1">Please pay at the counter</p>
-            <p class="text-amber-600 text-sm italic">Show your order ID #{{ $order->id }} to the cashier</p>
-        </div>
-        <p class="text-slate-500 mb-8 font-medium">We've received your order for Table {{ $order->table->table_number }}. Please wait while we prepare your food.</p>
-
-        <div class="bg-slate-50 rounded-2xl p-6 text-left mb-8">
-            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Order Summary #{{ $order->id }}</h3>
-            <ul class="space-y-3">
+        <h1 class="text-3xl font-black text-slate-900 mb-2 tracking-tighter">Order Sent!</h1>
+        <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-8">Table {{ $order->table->table_number }} • #{{ $order->id }}</p>
+        
+        <div class="flex-1 border-t-2 border-dashed border-slate-100 py-8 text-left">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Order Details</h3>
+            <ul class="space-y-4 mb-8">
                 @foreach($order->items as $item)
-                    <li class="flex justify-between text-sm">
-                        <span class="text-slate-600 font-medium">{{ $item->quantity }}x {{ $item->menuItem->name }}</span>
-                        <span class="text-slate-900 font-bold">RM {{ number_format($item->subtotal, 2) }}</span>
+                    <li class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <p class="text-sm font-bold text-slate-800">{{ $item->menuItem->name }}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">{{ $item->quantity }}x @ RM {{ number_format($item->price_at_order, 2) }}</p>
+                        </div>
+                        <span class="text-sm font-black text-slate-900">RM {{ number_format($item->subtotal, 2) }}</span>
                     </li>
                 @endforeach
             </ul>
-            <div class="border-t border-slate-200 mt-4 pt-4 flex justify-between items-center text-sm text-slate-500 mb-2">
-                <span>Payment Method</span>
-                <span class="font-bold uppercase">{{ $order->payment_method }}</span>
-            </div>
-            <div class="flex justify-between items-center text-lg font-bold text-primary-600">
-                <span>Total Paid</span>
-                <span>RM {{ number_format($order->total_amount, 2) }}</span>
+
+            <div class="space-y-3 pt-6 border-t border-slate-100">
+                <div class="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <span>Subtotal</span>
+                    <span class="text-slate-600">RM {{ number_format($order->total_amount / 1.06, 2) }}</span>
+                </div>
+                <div class="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <span>SST (6%)</span>
+                    <span class="text-slate-600">RM {{ number_format($order->total_amount - ($order->total_amount / 1.06), 2) }}</span>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-lg font-black text-slate-900">Total</span>
+                    <span class="text-2xl font-black text-primary-500">RM {{ number_format($order->total_amount, 2) }}</span>
+                </div>
             </div>
         </div>
 
-        <a href="{{ route('order.show', ['token' => $order->table->qr_token]) }}" class="inline-flex items-center justify-center w-full h-14 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all">
-            Order More Items
-        </a>
+        <div class="mt-8 space-y-4">
+            <div class="bg-amber-50 border border-amber-100 rounded-3xl p-6 text-center">
+                <p class="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-2 text-center">Payment Required</p>
+                <p class="text-amber-900 font-black text-lg">Please Proceed to Counter</p>
+            </div>
+
+            <a href="{{ route('order.show', ['token' => $order->table->qr_token]) }}" class="group flex items-center justify-center w-full h-16 bg-slate-900 text-white rounded-[24px] font-black uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-slate-200">
+                <span>Order More Items</span>
+                <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+            </a>
+        </div>
     </div>
 
 </body>

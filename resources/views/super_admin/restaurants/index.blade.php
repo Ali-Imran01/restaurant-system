@@ -1,19 +1,44 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex bg-slate-50 min-h-screen pl-64">
+<div class="flex h-screen bg-slate-50 overflow-hidden font-sans">
     @include('super_admin.partials.sidebar')
 
-    <div class="flex-1 p-10">
-        <header class="flex justify-between items-center mb-12">
-            <div>
-                <h1 class="text-4xl font-black text-slate-900 tracking-tight">Manage Restaurants</h1>
-                <p class="text-slate-500 font-medium mt-1">Total of {{ $restaurants->total() }} venues on the platform.</p>
+
+    <div class="flex-1 flex flex-col overflow-hidden min-h-0">
+        {{-- Header --}}
+        <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6 md:px-8 shrink-0">
+            <div class="flex items-center space-x-4">
+                {{-- Toggle Sidebar Button (Desktop) --}}
+                <button @click="toggleSidebar()" class="hidden md:flex w-10 h-10 bg-slate-50 rounded-xl items-center justify-center text-slate-400 hover:bg-primary-500 hover:text-white transition-all shadow-sm">
+                    <svg class="w-6 h-6 sidebar-transition" :class="sidebarCollapsed ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                {{-- Hamburger Button (Mobile) --}}
+                <button @click="mobileSidebarOpen = true" class="md:hidden w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 text-white">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Manage Venues</h1>
+                    <p class="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-0.5">Restaurant Control</p>
+                </div>
             </div>
-            <a href="{{ route('super_admin.restaurants.create') }}" class="px-6 py-4 bg-primary-600 text-white font-black text-sm rounded-2xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20 active:scale-95">
-                Add New Restaurant
-            </a>
+            <div class="flex items-center space-x-2">
+                <a href="{{ route('super_admin.restaurants.create') }}" class="bg-indigo-600 text-white p-2.5 md:px-6 md:py-3 rounded-2xl font-black text-sm hover:bg-indigo-700 shadow-xl shadow-indigo-600/20 transition-all flex items-center">
+                    <svg class="w-5 h-5 md:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span class="hidden md:inline">Add Restaurant</span>
+                </a>
+            </div>
         </header>
+
+        <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50/50 pb-8">
 
         @if(session('success'))
             <div class="mb-8 p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold rounded-2xl text-center">
@@ -77,6 +102,7 @@
         <div class="mt-8">
             {{ $restaurants->links() }}
         </div>
+        </main>
     </div>
 </div>
 @endsection
